@@ -15,5 +15,5 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
-python main.py /path/to/reference/images /path/to/eval/images
+python main.py /path/to/reference/images /path/to/eval/images batch_size
 ```
