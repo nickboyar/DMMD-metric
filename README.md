@@ -9,6 +9,7 @@ The metric is implemented based on the PyTorch framework.
 Install dependencies 
 
 ```bash
+cd DMMD_metric
 pip install -r requirements.txt
 ```
 
