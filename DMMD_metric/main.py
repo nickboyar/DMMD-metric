@@ -47,7 +47,7 @@ def main(argv):
     _, dir1, dir2 = argv
     
     print(
-        "The CMMD value is: "
+        "The DMMD value is: "
         f" {compute_dmmd(dir1, dir2, _REF_EMBED_FILE.value, _BATCH_SIZE.value, _MAX_COUNT.value):.3f}"
     )
     
