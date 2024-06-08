@@ -1,25 +1,27 @@
 import torch
-import numpy as np
 
-SIGMA = 10
 SCALE = 1000
+GAMMA = 1 / (2 * 10**2)
 
-def mmd(x, y):
-    x = torch.from_numpy(x)
-    y = torch.from_numpy(y)
+def mmd(gen_mat, real_mat):
+    
+    gen_mat = torch.from_numpy(gen_mat)
+    real_mat = torch.from_numpy(real_mat)
+    
+    gen_mat_mul = torch.matmul(gen_mat, gen_mat.T)
+    real_mat_mul = torch.matmul(real_mat, real_mat.T)
+    gen_real_mat_mul = torch.matmul(gen_mat, real_mat.T)
 
-    x_sqnorms = torch.diag(torch.matmul(x, x.T))
-    y_sqnorms = torch.diag(torch.matmul(y, y.T))
-
-    gamma = 1 / (2 * SIGMA**2)
-    k_xx = torch.mean(
-        torch.exp(-gamma * (-2 * torch.matmul(x, x.T) + torch.unsqueeze(x_sqnorms, 1) + torch.unsqueeze(x_sqnorms, 0)))
-    )
-    k_xy = torch.mean(
-        torch.exp(-gamma * (-2 * torch.matmul(x, y.T) + torch.unsqueeze(x_sqnorms, 1) + torch.unsqueeze(y_sqnorms, 0)))
-    )
-    k_yy = torch.mean(
-        torch.exp(-gamma * (-2 * torch.matmul(y, y.T) + torch.unsqueeze(y_sqnorms, 1) + torch.unsqueeze(y_sqnorms, 0)))
-    )
-
-    return SCALE * (k_xx + k_yy - 2 * k_xy)
+    gen_mat_square_norm = torch.diag(gen_mat_mul)
+    real_mat_square_norm = torch.diag(real_mat_mul)
+    
+    kernel_xx = (torch.unsqueeze(gen_mat_square_norm, 1) + torch.unsqueeze(gen_mat_square_norm, 0) - 2 * gen_mat_mul)
+    expectation_kernel_xx = torch.mean(torch.exp(-GAMMA * kernel_xx))
+    
+    kernel_yy = (torch.unsqueeze(real_mat_square_norm, 1) + torch.unsqueeze(real_mat_square_norm, 0) - 2 * real_mat_mul)
+    expectation_kernel_yy = torch.mean(torch.exp(-GAMMA * kernel_yy))
+    
+    kernel_xy = (torch.unsqueeze(gen_mat_square_norm, 1) + torch.unsqueeze(real_mat_square_norm, 0) - 2 * gen_real_mat_mul)
+    expectation_kernel_xy = torch.mean(torch.exp(-GAMMA * kernel_xy))
+    
+    return SCALE * (expectation_kernel_xx + expectation_kernel_yy - 2 * expectation_kernel_xy)
